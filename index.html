@@ -5,4 +5,10 @@ function add(files){[...files].filter(f=>/^image\/(png|jpeg)$/.test(f.type)).for
 function render(){list.innerHTML="";items.forEach((x,i)=>{let r=D.createElement("div"),im=D.createElement("img"),m=D.createElement("div"),o=D.createElement("div"),n=D.createElement("input"),b=D.createElement("button");r.className="item";im.className="thumb";im.src=x.u;o.className="original";o.textContent=x.f.name;n.className="name";n.value=x.n;n.oninput=()=>x.n=n.value;b.className="remove";b.textContent="삭제";b.onclick=()=>{items.splice(i,1);render()};m.append(o,n);r.append(im,m,b);list.append(r)});toolbar.style.display=items.length?"flex":"none";actions.style.display=items.length?"block":"none";count.textContent=items.length?items.length+"개 이미지 준비됨":""}
 function convert(x){return new Promise((ok,no)=>{let im=new Image();im.onload=()=>{let W=4444,H=2500,R=W/H,s=im.naturalWidth/im.naturalHeight,sx=0,sy=0,sw=im.naturalWidth,sh=im.naturalHeight;if(s>R){sw=Math.round(im.naturalHeight*R);sx=(im.naturalWidth-sw)/2}else if(s<R){sh=Math.round(im.naturalWidth/R);sy=(im.naturalHeight-sh)/2}let c=D.createElement("canvas");c.width=W;c.height=H;c.getContext("2d").drawImage(im,sx,sy,sw,sh,0,0,W,H);c.toBlob(ok,"image/jpeg",.95)};im.src=x.u})}
 save.onclick=async()=>{save.disabled=true;save.textContent="변환 중...";for(let x of items){let blob=await convert(x),u=URL.createObjectURL(blob),a=D.createElement("a");a.href=u;a.download=(x.n.trim()||"background")+".jpg";a.click();await new Promise(r=>setTimeout(r,300));URL.revokeObjectURL(u)}save.disabled=false;save.textContent="전체 JPG 저장하기"};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && items.length && !save.disabled){
+    if(e.target.tagName==="INPUT" && e.target.classList.contains("name")) e.preventDefault();
+    save.click();
+  }
+});
 </script></body></html>
